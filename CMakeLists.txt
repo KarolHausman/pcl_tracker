@@ -4,8 +4,9 @@ project(pcl_tracker)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS roscpp tf)
 find_package(PCL REQUIRED)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -79,7 +80,7 @@ find_package(PCL REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES pcl_tracker
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS roscpp tf
 #  DEPENDS system_lib
 )
 
@@ -108,7 +109,7 @@ include_directories(${PCL_INCLUDE_DIRS})
 # target_link_libraries(pcl_tracker_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(pcl_tracker ${PCL_LIBRARIES})
+target_link_libraries(pcl_tracker ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 #############
 ## Install ##

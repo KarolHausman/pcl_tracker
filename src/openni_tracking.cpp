@@ -34,6 +34,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
+#include <tf/transform_broadcaster.h>
+#include <ros/ros.h>
+
+
 #include <pcl/tracking/tracking.h>
 #include <pcl/tracking/particle_filter.h>
 #include <pcl/tracking/kld_adaptive_particle_filter_omp.h>
@@ -661,8 +666,30 @@ public:
     
     interface->start ();
       
-    while (!viewer_.wasStopped ())
+    ros::NodeHandle nh_;
+//    ros::Rate r(60);
+
+
+
+    while (nh_.ok() && !viewer_.wasStopped())
+    {
       boost::this_thread::sleep(boost::posix_time::seconds(1));
+
+      ParticleXYZRPY result = tracker_->getResult ();
+      Eigen::Affine3f transformation = tracker_->toEigenMatrix (result);
+      Eigen::Vector3f transl = transformation.translation();
+      Eigen::Vector3f rpy = transformation.rotation().eulerAngles(0,1,2);
+      tf::TransformBroadcaster transform_broadcaster;
+      tf::Quaternion q(rpy(2), rpy(1), rpy(0));
+      tf::Transform transform (q, tf::Vector3(transl(0), transl(1), transl(2)));
+      transform_broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/object", "/global_camera"));
+
+      ros::spinOnce();
+//      r.sleep();
+    }
+
+//    while (!viewer_.wasStopped ())
+//      boost::this_thread::sleep(boost::posix_time::seconds(1));
     interface->stop ();
   }
   
@@ -746,5 +773,8 @@ main (int argc, char** argv)
                                               use_convex_hull,
                                               visualize_non_downsample, visualize_particles,
                                               use_fixed);
+
+  ros::init(argc, argv, "pcl_tracker");
+
   v.run ();
 }

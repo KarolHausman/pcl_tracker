@@ -667,7 +667,7 @@ public:
     interface->start ();
       
     ros::NodeHandle nh_;
-//    ros::Rate r(60);
+    ros::Rate r(60);
 
 
 
@@ -681,11 +681,12 @@ public:
       Eigen::Vector3f rpy = transformation.rotation().eulerAngles(0,1,2);
       tf::TransformBroadcaster transform_broadcaster;
       tf::Quaternion q(rpy(2), rpy(1), rpy(0));
+      std::cout << "translation : " << transl << std::endl;
       tf::Transform transform (q, tf::Vector3(transl(0), transl(1), transl(2)));
       transform_broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/object", "/global_camera"));
 
       ros::spinOnce();
-//      r.sleep();
+      r.sleep();
     }
 
 //    while (!viewer_.wasStopped ())
